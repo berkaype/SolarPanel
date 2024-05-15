@@ -33,7 +33,6 @@ class SolarPanelApp:
         self.panel_area_var = tk.StringVar()
         self.conversion_efficiency_var = tk.StringVar()
         self.overall_efficiency_var = tk.StringVar()
-        self.sunlight_hours_var = tk.StringVar()
 
         ttk.Label(container, text="Panel Gücü (W):").grid(row=0, column=0, sticky="w")
         ttk.Entry(container, textvariable=self.panel_power_var).grid(row=0, column=1, sticky="ew")
@@ -50,14 +49,13 @@ class SolarPanelApp:
         ttk.Label(container, text="Panel Genel Verimlilik Yüzdesi (%):").grid(row=4, column=0, sticky="w")
         ttk.Entry(container, textvariable=self.overall_efficiency_var).grid(row=4, column=1, sticky="ew")
 
-        ttk.Label(container, text="Güneşlenme Süresi (saat):").grid(row=5, column=0, sticky="w")
-        ttk.Entry(container, textvariable=self.sunlight_hours_var).grid(row=5, column=1, sticky="ew")
-
         self.control_button = ttk.Button(container, text="Kontrol", command=self.check_panel_efficiency)
-        self.control_button.grid(row=6, column=0, sticky="ew", columnspan=2)
+        self.control_button.grid(row=5, column=0, sticky="ew", columnspan=2)
 
         self.control_message = ttk.Label(container, text="")
-        self.control_message.grid(row=6, column=2, columnspan=2)
+        self.control_message.grid(row=5, column=2, columnspan=2)
+
+    
 
     def create_device_input(self, container, values=None):
         device_name_var = tk.StringVar()
@@ -120,46 +118,11 @@ class SolarPanelApp:
             sunlight_intensity = float(self.sunlight_intensity_var.get())
             panel_area = float(self.panel_area_var.get())
             conversion_efficiency = float(self.conversion_efficiency_var.get())
-            sunlight_hours = float(self.sunlight_hours_var.get()) if self.sunlight_hours_var.get() else None
             calculated_power = sunlight_intensity * panel_area * conversion_efficiency / 100
-            device_voltage_total = sum(float(device["voltage"].get()) for device in self.device_inputs)
-            panel_capacity = panel_power * 0.8  # Panel efficiency is assumed as 80%
-            
-            if sunlight_hours is None:
-                if calculated_power < panel_capacity:
-                    self.control_message.config(text="Anlık panel kapasitesi yeterli!", foreground="green")
-                else:
-                    selected_devices = []
-                    remaining_capacity = panel_capacity
-                    sorted_devices = sorted(self.device_inputs, key=lambda x: float(x["capacity"].get()) * float(x["voltage"].get()), reverse=True)
-                    for device in sorted_devices:
-                        capacity = float(device["capacity"].get()) if device["unit"].get() == "Wh" else float(device["capacity"].get()) * float(device["voltage"].get()) / 1000
-                        if remaining_capacity - capacity >= 0:
-                            selected_devices.append(device["name"].get())
-                            remaining_capacity -= capacity
-                    self.control_message.config(text=f"Anlık panel kapasitesi yetersiz, bazı cihazları çıkartın! (Seçilen Cihazlar: {', '.join(selected_devices)})", foreground="red")
+            if calculated_power < panel_power:
+                self.control_message.config(text="Dikkat Panel yeterince güneş ışığı almıyor!", foreground="red")
             else:
-                if calculated_power < device_voltage_total * 2 * 0.8:
-                    self.control_message.config(text="Anlık panel kapasitesi yeterli!", foreground="green")
-                    max_charging_time_device = max(self.device_inputs, key=lambda x: float(x["capacity"].get()) * float(x["voltage"].get()))
-                    max_charging_time = float(max_charging_time_device["capacity"].get()) * float(max_charging_time_device["voltage"].get()) / (panel_power * overall_efficiency / 100)
-                    self.result_output.delete(1.0, tk.END)
-                    self.result_output.insert(tk.END, f"Panel Güneşlenme süresi ihtiyacı: {max_charging_time:.2f} saat\n\n")
-                else:
-                    selected_devices = []
-                    remaining_capacity = panel_capacity
-                    sorted_devices = sorted(self.device_inputs, key=lambda x: float(x["capacity"].get()) * float(x["voltage"].get()), reverse=True)
-                    for device in sorted_devices:
-                        capacity = float(device["capacity"].get()) if device["unit"].get() == "Wh" else float(device["capacity"].get()) * float(device["voltage"].get()) / 1000
-                        if remaining_capacity - capacity >= 0:
-                            selected_devices.append(device["name"].get())
-                            remaining_capacity -= capacity
-                    max_charging_time_device = max(self.device_inputs, key=lambda x: float(x["capacity"].get()) * float(x["voltage"].get()))
-                    max_charging_time = float(max_charging_time_device["capacity"].get()) * float(max_charging_time_device["voltage"].get()) / (panel_power * overall_efficiency / 100)
-                    self.control_message.config(text=f"Anlık panel kapasitesi yetersiz, bazı cihazları çıkartın! (Seçilen Cihazlar: {', '.join(selected_devices)})", foreground="red")
-                    self.result_output.delete(1.0, tk.END)
-                    self.result_output.insert(tk.END, f"Panel Güneşlenme süresi ihtiyacı: {max_charging_time:.2f} saat\n\n")
-
+                self.control_message.config(text="Panel yeterince güneş ışığı alıyor!", foreground="green")
         except ValueError:
             self.control_message.config(text="Lütfen tüm alanları doğru doldurun!", foreground="red")
 
@@ -191,4 +154,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = SolarPanelApp(root)
     root.mainloop()
-

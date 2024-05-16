@@ -79,15 +79,15 @@ class SolarPanelApp:
         ttk.Label(container, text="Panel Çevrimi Verimlilik Yüzdesi (%):").grid(row=4, column=0, sticky="w")
         ttk.Entry(container, textvariable=self.overall_efficiency_var).grid(row=4, column=1, sticky="ew")
 
-        ttk.Label(container, text="Panel Güneşlenme Süresi (saat):").grid(row=6, column=0, sticky="w")
-        ttk.Entry(container, textvariable=self.sun_time_var).grid(row=6, column=1, sticky="ew")
+        ttk.Label(container, text="Panel Güneşlenme Süresi (saat):").grid(row=7, column=0, sticky="w")
+        ttk.Entry(container, textvariable=self.sun_time_var).grid(row=7, column=1, sticky="ew")
 
         self.control_button = ttk.Button(container, text="Kontrol", command=self.check_panel_efficiency)
         self.control_button.grid(row=5, column=0, sticky="ew", columnspan=2)
 
 
         self.control_message = ttk.Label(container, text="")
-        self.control_message.grid(row=5, column=2, columnspan=2)
+        self.control_message.grid(row=6, column=0, columnspan=2)
 
         # Tablo
         lux_table_text = """

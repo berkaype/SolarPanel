@@ -1,4 +1,4 @@
-calculates: /n
+calculates: 
 
 1-Solar Power Requirement
 2-Panel Efficiency

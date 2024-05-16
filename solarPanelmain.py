@@ -7,32 +7,54 @@ class SolarPanelApp:
         self.root.title("Güneş Paneli Şarj Süresi Hesaplayıcı")
         self.root.geometry("1200x600")
 
-        self.panel_frame = ttk.LabelFrame(self.root, text="Panel ile Alakalı Bilgiler", padding=(20, 10))
+        # Create a main frame
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=1)
+
+        # Create a canvas
+        canvas = tk.Canvas(main_frame)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        # Add a scrollbar to the canvas
+        scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Configure the canvas
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        # Create another frame inside the canvas
+        self.scrollable_frame = tk.Frame(canvas)
+
+        # Add that new frame to a window in the canvas
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        self.panel_frame = ttk.LabelFrame(self.scrollable_frame, text="Panel ile Alakalı Bilgiler", padding=(20, 10))
         self.panel_frame.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
 
         self.create_panel_input(self.panel_frame)
 
-        self.device_frame = ttk.LabelFrame(self.root, text="Cihazlar", padding=(20, 10))
+        self.device_frame = ttk.LabelFrame(self.scrollable_frame, text="Cihazlar", padding=(20, 10))
         self.device_frame.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
         self.device_inputs = []
         self.create_device_input(self.device_frame)
 
-        self.add_device_button = ttk.Button(self.root, text="+ Cihaz Ekle", command=self.add_device_input)
+        self.add_device_button = ttk.Button(self.scrollable_frame, text="+ Cihaz Ekle", command=self.add_device_input)
         self.add_device_button.grid(row=1, column=0, padx=0, pady=0)
 
-        self.calculate_button = ttk.Button(self.root, text="Hesapla", command=self.calculate)
+        self.calculate_button = ttk.Button(self.scrollable_frame, text="Hesapla", command=self.calculate)
         self.calculate_button.grid(row=3, column=0, padx=20, pady=10)
 
-        self.result_output = tk.Text(self.root, height=10, width=140)
+        self.result_output = tk.Text(self.scrollable_frame, height=10, width=140)
         self.result_output.grid(row=4, column=0, padx=20, pady=10)
 
         # Scrollbar ekleyin
-        scrollbar = tk.Scrollbar(self.root, orient=tk.VERTICAL, command=self.result_output.yview)
-        scrollbar.grid(row=4, column=1, sticky='ns')
+        result_scrollbar = tk.Scrollbar(self.scrollable_frame, orient=tk.VERTICAL, command=self.result_output.yview)
+        result_scrollbar.grid(row=4, column=1, sticky='ns')
 
         # Text widget'ı scrollbar ile ilişkilendirin
-        self.result_output.config(yscrollcommand=scrollbar.set)
+        self.result_output.config(yscrollcommand=result_scrollbar.set)
 
     def create_panel_input(self, container):
         self.panel_power_var = tk.StringVar()
@@ -152,7 +174,7 @@ class SolarPanelApp:
                 capacity_unit = device_input["unit"].get()
                 capacity = float(device_input["capacity"].get())
                 voltage = float(device_input["voltage"].get())
-                cycles = int(device_input["cycles"].get())
+                cycles = float(device_input["cycles"].get())
                 capacity = capacity if capacity_unit == "Wh" else capacity * voltage / 1000
                 devices.append({"name": name, "capacity": capacity, "voltage": voltage, "charging_cycles": cycles})
 

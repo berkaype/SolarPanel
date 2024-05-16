@@ -13,19 +13,26 @@ class SolarPanelApp:
         self.create_panel_input(self.panel_frame)
 
         self.device_frame = ttk.LabelFrame(self.root, text="Cihazlar", padding=(20, 10))
-        self.device_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        self.device_frame.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
         self.device_inputs = []
         self.create_device_input(self.device_frame)
 
-        self.add_device_button = ttk.Button(self.root, text="+", command=self.add_device_input)
-        self.add_device_button.grid(row=2, column=0, padx=20, pady=10)
+        self.add_device_button = ttk.Button(self.root, text="+ Cihaz Ekle", command=self.add_device_input)
+        self.add_device_button.grid(row=1, column=0, padx=0, pady=0)
 
         self.calculate_button = ttk.Button(self.root, text="Hesapla", command=self.calculate)
         self.calculate_button.grid(row=3, column=0, padx=20, pady=10)
 
         self.result_output = tk.Text(self.root, height=10, width=140)
         self.result_output.grid(row=4, column=0, padx=20, pady=10)
+
+        # Scrollbar ekleyin
+        scrollbar = tk.Scrollbar(self.root, orient=tk.VERTICAL, command=self.result_output.yview)
+        scrollbar.grid(row=4, column=1, sticky='ns')
+
+        # Text widget'ı scrollbar ile ilişkilendirin
+        self.result_output.config(yscrollcommand=scrollbar.set)
 
     def create_panel_input(self, container):
         self.panel_power_var = tk.StringVar()
@@ -108,6 +115,8 @@ class SolarPanelApp:
 
     def add_device_input(self):
         self.create_device_input(self.device_frame)
+        current_height = int(self.result_output.cget("height"))
+        self.result_output.config(height=current_height + 1)        
 
     def delete_device_input(self, row):
         self.device_inputs.pop(row)  # Remove the deleted device from the list

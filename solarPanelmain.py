@@ -89,7 +89,37 @@ class SolarPanelApp:
         self.control_message = ttk.Label(container, text="")
         self.control_message.grid(row=5, column=2, columnspan=2)
 
-    
+        # Tablo
+        lux_table_text = """
+                      100 lux: Kapalı Hava
+                300 – 500 lux: Bulutsuz bir günde Günbatımı / Gündoğumu
+                    1,000 lux: Parçalı Bulutlu
+          10,000 – 25,000 lux: Açık Hava Gün Işığı (indirekt)
+         32,000 – 130,000 lux: Direk Gün Işığı
+        """
+        lux_table = tk.Text(container, height=7, width=80)
+        lux_table.grid(row=0, column=2, rowspan=7, padx=60)
+        lux_table.insert(tk.END, lux_table_text)
+        lux_table.config(state="disabled")
+        # Lux - W/m2 çevirici
+        ttk.Label(container, text="Lux:", width=4, anchor="w").grid(row=8, column=2, padx=10, sticky="w")
+        self.lux_input_var = tk.StringVar()
+
+        ttk.Entry(container, textvariable=self.lux_input_var, width=10).grid(row=8, column=2, padx=40 , sticky="w")
+
+        convert_button = ttk.Button(container, text="Dönüştür", command=self.convert_lux_to_watt_per_m2, width=10)
+        convert_button.grid(row=8, column=2, padx=100, sticky="w")
+
+        self.watt_per_m2_output_var = tk.StringVar()
+        ttk.Label(container, textvariable=self.watt_per_m2_output_var, width=40).grid(row=8, column=2, padx=200, sticky="w")
+
+    def convert_lux_to_watt_per_m2(self):
+        try:
+            lux_value = float(self.lux_input_var.get())
+            watt_per_m2_value = lux_value * 0.0079
+            self.watt_per_m2_output_var.set(f"{watt_per_m2_value:.2f} W/m²")
+        except ValueError:
+            self.watt_per_m2_output_var.set("Geçersiz değer")
 
     def create_device_input(self, container, values=None):
         device_name_var = tk.StringVar()
